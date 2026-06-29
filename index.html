@@ -73,6 +73,7 @@ header.site-header .actions{
   font-weight:bold;
   letter-spacing:0.03em;
   text-transform:uppercase;
+  text-decoration:underline;
   padding:9px 16px;
   border-radius:3px;
   border:1.5px solid transparent;
@@ -242,11 +243,13 @@ main{
 @media (max-width:900px){ .org-grid{grid-template-columns:repeat(2,1fr);} }
 @media (max-width:600px){ .org-grid{grid-template-columns:1fr;} .stats-row{grid-template-columns:repeat(2,1fr);} }
 
-details.org-card{
+.org-card{
   background:var(--white);
   border:1px solid var(--grey-line);
   border-left:3px solid var(--blue);
   border-radius:4px;
+}
+details.org-card{
   padding:0;
 }
 details.org-card summary{
@@ -289,10 +292,12 @@ details.org-card .org-quote{
   color:#222;
   margin-top:4px;
 }
-details.org-card .org-states{
-  font-size:11px;
-  color:var(--blue-muted);
-  margin-top:6px;
+.org-card-static{
+  padding:10px 12px;
+  font-size:13.5px;
+  font-weight:bold;
+  color:var(--blue);
+  cursor:default;
 }
 
 /* ---------- state detail ---------- */
@@ -411,8 +416,10 @@ footer .footer-actions{
 <header class="site-header no-print">
   <div class="brand"></div>
   <div class="actions">
-    <a class="btn btn-gold" id="btnOnePager" href="#" target="_blank" rel="noopener">Download One Pager</a>
-    <button class="btn btn-outline" id="btnShare">Share / QR Code</button>
+    <a class="btn btn-gold" id="btnOnePager" href="#" target="_blank" rel="noopener">One Pager</a>
+    <a class="btn btn-gold" id="btnBillText" href="#" target="_blank" rel="noopener">Bill Text</a>
+    <a class="btn btn-gold" id="btnCosponsors" href="#" target="_blank" rel="noopener">Cosponsors</a>
+    <button class="btn btn-gold" id="btnShare">Share / QR Code</button>
   </div>
 </header>
 
@@ -806,14 +813,15 @@ function hideTooltip(){ document.getElementById('mapTooltip').style.display='non
    RENDER: national orgs
    ========================================================= */
 function orgCard(org){
-  const hasQuote = !!org.quote;
-  return `<details class="org-card">
-    <summary>${esc(org.org)}</summary>
-    <div class="org-body">
-      ${hasQuote ? `<div class="org-quote">${esc(org.quote)}</div>` : `<div class="empty-note">No public statement submitted.</div>`}
-      ${org.states && org.states.length ? `<div class="org-states">States represented: ${esc(org.states.join(", "))}</div>` : ""}
-    </div>
-  </details>`;
+  if(org.quote){
+    return `<details class="org-card">
+      <summary>${esc(org.org)}</summary>
+      <div class="org-body">
+        <div class="org-quote">${esc(org.quote)}</div>
+      </div>
+    </details>`;
+  }
+  return `<div class="org-card org-card-static">${esc(org.org)}</div>`;
 }
 function renderNational(){
   const list = DATA.filter(d=>d.category==="national").sort((a,b)=>a.org.localeCompare(b.org));
@@ -862,7 +870,9 @@ function renderStateDetail(){
 
 /* (PDF generation removed — staffers are producing the one-pager separately;
    the dashboard just links out to it via ONE_PAGER_URL below) */
-const ONE_PAGER_URL = "https://github.com/TRN-HAC/SAWA/blob/main/SAWA%20One%20Pager%20Place%20Holder.pdf";
+const ONE_PAGER_URL = "https://trn-hac.github.io/SAWA/FINAL_SAWA_OnePager.pdf";
+const BILL_TEXT_URL = "https://www.congress.gov"; // <-- swap in the actual bill text link when available
+const COSPONSORS_URL = "https://www.congress.gov"; // <-- placeholder, swap in the real cosponsors page/list when ready
 
 /* =========================================================
    SHARE / QR MODAL
@@ -911,6 +921,8 @@ document.getElementById('copyLinkBtn').addEventListener('click', ()=>{
    ========================================================= */
 document.getElementById('btnRefreshData').addEventListener('click', refreshData);
 document.getElementById('btnOnePager').setAttribute('href', ONE_PAGER_URL);
+document.getElementById('btnBillText').setAttribute('href', BILL_TEXT_URL);
+document.getElementById('btnCosponsors').setAttribute('href', COSPONSORS_URL);
 document.getElementById('btnShare').addEventListener('click', openShareModal);
 document.getElementById('closeShareModal').addEventListener('click', closeShareModal);
 document.getElementById('btnClearState').addEventListener('click', clearState);
