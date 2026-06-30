@@ -81,8 +81,10 @@ header.site-header .actions{
   transition:transform .08s ease, box-shadow .08s ease;
 }
 .btn:active{transform:translateY(1px);}
-.btn-gold{background:var(--gold); color:var(--blue); border-color:var(--gold);}
-.btn-gold:hover{background:var(--gold-dark);}
+.btn-gold{background:var(--blue); color:var(--white); border-color:var(--blue);}
+.btn-gold:hover{background:var(--blue-light);}
+.btn-accent{background:var(--gold); color:var(--blue); border-color:var(--blue); border-width:2px;}
+.btn-accent:hover{background:var(--gold-dark);}
 .btn-outline{background:transparent; color:var(--white); border-color:rgba(255,255,255,0.55);}
 .btn-outline:hover{background:rgba(255,255,255,0.12);}
 .btn-outline-blue{background:transparent; color:var(--blue); border-color:var(--blue);}
@@ -292,11 +294,18 @@ details.org-card .org-quote{
   color:#222;
   margin-top:4px;
 }
+.org-states{
+  font-size:11px;
+  color:var(--blue-muted);
+  text-align:left;
+  margin-top:6px;
+}
 .org-card-static{
   padding:10px 12px;
   font-size:13.5px;
   font-weight:bold;
   color:var(--blue);
+  text-align:left;
   cursor:default;
 }
 
@@ -414,7 +423,9 @@ footer .footer-actions{
 <body>
 
 <header class="site-header no-print">
-  <div class="brand"></div>
+  <div class="brand">
+    <a class="btn btn-accent" id="btnAddSupport" href="#" target="_blank" rel="noopener">Add Your Support</a>
+  </div>
   <div class="actions">
     <a class="btn btn-gold" id="btnOnePager" href="#" target="_blank" rel="noopener">One Pager</a>
     <a class="btn btn-gold" id="btnBillText" href="#" target="_blank" rel="noopener">Bill Text</a>
@@ -813,15 +824,19 @@ function hideTooltip(){ document.getElementById('mapTooltip').style.display='non
    RENDER: national orgs
    ========================================================= */
 function orgCard(org){
+  const statesLine = (org.states && org.states.length)
+    ? `<div class="org-states">States represented: ${esc(org.states.join(", "))}</div>`
+    : "";
   if(org.quote){
     return `<details class="org-card">
       <summary>${esc(org.org)}</summary>
       <div class="org-body">
         <div class="org-quote">${esc(org.quote)}</div>
+        ${statesLine}
       </div>
     </details>`;
   }
-  return `<div class="org-card org-card-static">${esc(org.org)}</div>`;
+  return `<div class="org-card org-card-static">${esc(org.org)}${statesLine}</div>`;
 }
 function renderNational(){
   const list = DATA.filter(d=>d.category==="national").sort((a,b)=>a.org.localeCompare(b.org));
@@ -870,9 +885,10 @@ function renderStateDetail(){
 
 /* (PDF generation removed — staffers are producing the one-pager separately;
    the dashboard just links out to it via ONE_PAGER_URL below) */
+const ADD_SUPPORT_URL = "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=mYITktAiSU2NMHFw1YltmAuj49sNS6VIgMN5jUqV1BtUQTBKR0JJTUoyR0E0VEIxNjlESDlVU1VIUi4u";
 const ONE_PAGER_URL = "https://trn-hac.github.io/SAWA/FINAL_SAWA_OnePager.pdf";
 const BILL_TEXT_URL = "https://www.congress.gov"; // <-- swap in the actual bill text link when available
-const COSPONSORS_URL = "https://www.congress.gov"; // <-- placeholder, swap in the real cosponsors page/list when ready
+const COSPONSORS_URL = "https://trn-hac.github.io/SAWA/Cosponsors.pdf";
 
 /* =========================================================
    SHARE / QR MODAL
@@ -921,6 +937,7 @@ document.getElementById('copyLinkBtn').addEventListener('click', ()=>{
    ========================================================= */
 document.getElementById('btnRefreshData').addEventListener('click', refreshData);
 document.getElementById('btnOnePager').setAttribute('href', ONE_PAGER_URL);
+document.getElementById('btnAddSupport').setAttribute('href', ADD_SUPPORT_URL);
 document.getElementById('btnBillText').setAttribute('href', BILL_TEXT_URL);
 document.getElementById('btnCosponsors').setAttribute('href', COSPONSORS_URL);
 document.getElementById('btnShare').addEventListener('click', openShareModal);
