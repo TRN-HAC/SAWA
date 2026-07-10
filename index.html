@@ -524,7 +524,6 @@ footer .footer-actions{
 
   <div class="section-title">
     <h2 class="display">National Organizations</h2>
-    <p class="section-sub" id="nationalCount"></p>
   </div>
   <div class="org-grid" id="nationalGrid"></div>
 
@@ -847,8 +846,12 @@ function renderMap(){
   svg.querySelectorAll('path.state').forEach(path=>{
     const name = path.getAttribute('data-state');
     path.addEventListener('click', ()=> selectState(name));
-    path.addEventListener('mousemove', (e)=> showTooltip(e, name, counts[name]));
+    path.addEventListener('mousemove', (e)=>{
+      if(window.matchMedia('(hover:none)').matches) return; // touch device — no tooltip
+      showTooltip(e, name, counts[name]);
+    });
     path.addEventListener('mouseleave', hideTooltip);
+    path.addEventListener('click', hideTooltip); // always hide on tap/click
   });
 }
 function showTooltip(e, name, count){
@@ -885,7 +888,6 @@ function orgCard(org){
 }
 function renderNational(){
   const list = DATA.filter(d=>d.category==="national").sort((a,b)=>a.org.localeCompare(b.org));
-  document.getElementById('nationalCount').textContent = list.length + (list.length===1 ? " organization" : " organizations") + " in support nationwide";
   document.getElementById('nationalGrid').innerHTML = list.map(orgCard).join("") || `<p class="empty-note">No national organizations recorded yet.</p>`;
 }
 
